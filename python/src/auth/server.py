@@ -1,13 +1,11 @@
-import jwt
-import datetime
 import os
 from dotenv import load_dotenv
 from flask_migrate import Migrate
 from flask_sqlalchemy import SQLAlchemy
 from urllib.parse import quote_plus
-from flask import Flask, request, jsonify
+from flask import Flask
 
-from models import db  # Import SQLAlchemy instance from models.py
+from models import db
 
 app = Flask(__name__)
 
@@ -25,19 +23,15 @@ SQLALCHEMY_DATABASE_URL = (
 app.config['SQLALCHEMY_DATABASE_URI'] = SQLALCHEMY_DATABASE_URL
 app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
 
-
-
-migrate = Migrate(app, db)
-
 # Initialize SQLAlchemy with the Flask app
 db.init_app(app)
 
-# Import routes after initializing app and db
-from routes import app_routes
+# Perform database migration
+migrate = Migrate(app, db)
 
-# Register blueprints
-app.register_blueprint(app_routes)
+# Import and register authentication blueprint
+from auth import auth_bp
+app.register_blueprint(auth_bp)
 
 if __name__ == "__main__":
     app.run(host="0.0.0.0", port=5000, debug=True)
-

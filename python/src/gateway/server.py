@@ -21,7 +21,7 @@ mongo = PyMongo(server)
 fs = gridfs.GridFS(mongo.db)
 
 # Configure RabbitMQ connection
-params = pika.URLParameters('amqps://cavynprl:2koEdoR42NgR6EX18jlc4zTkn9BcBlhP@shark.rmq.cloudamqp.com/cavynprl')
+params = pika.URLParameters('rbbitmq_url')
 connection = pika.BlockingConnection(params)
 channel = connection.channel()
 

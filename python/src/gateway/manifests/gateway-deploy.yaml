@@ -1,0 +1,36 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: gateway-deployment
+spec:
+  replicas: 2
+  selector:
+    matchLabels:
+      app: gateway
+  template:
+    metadata:
+      labels:
+        app: gateway
+    spec:
+      containers:
+      - name: gateway
+        image: mashilo/gateway
+        ports:
+        - containerPort: 5000
+        envFrom:
+        - configMapRef:
+            name: gateway-configmap
+        - secretRef:
+            name: gateway-secret
+        resources:  # Define resource requests and limits for the container
+          limits:
+            cpu: "0.5"  # Maximum CPU limit for the container (in CPU units)
+            memory: "512Mi"  # Maximum memory limit for the container (in MiB)
+          requests:
+            cpu: "0.1"  # Minimum CPU request for the container (in CPU units)
+            memory: "128Mi"  # Minimum memory request for the container (in MiB)
+  strategy:
+    rollingUpdate:
+      maxSurge: 1
+      maxUnavailable: 1
+    type: RollingUpdate

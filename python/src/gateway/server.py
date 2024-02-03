@@ -1,5 +1,6 @@
 import os
-import gridfs
+from pymongo import MongoClient
+from gridfs import GridFS
 import pika
 import json
 from flask import Flask, request
@@ -18,11 +19,10 @@ server.config["MONGO_URI"] = "mongodb://host.minikube.internal:27017/videos"
 mongo = PyMongo(server)
 
 # Initialize GridFS for file storage
-fs = gridfs.GridFS(mongo.db)
+fs = GridFS(mongo.db)
 
 # Configure RabbitMQ connection
-params = pika.URLParameters('rbbitmq_url')
-connection = pika.BlockingConnection(params)
+connection = pika.BlockingConnection(pika.ConnectionParameters("rabbimq"))
 channel = connection.channel()
 
 # Route for user login

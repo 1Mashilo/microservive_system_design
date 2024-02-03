@@ -1,8 +1,8 @@
-apiVersion: networking.k8s.io/vl
+apiVersion: networking.k8s.io/v1
 kind: Ingress
 metadata:
   name: gateway-ingress
-  annotation:
+  annotations:
     nginx.ingress.kubernetes.io/proxy-body-size: "0"
     nginx.ingress.kubernetes.io/proxy-read-timeout: "600"
     nginx.ingress.kubernetes.io/proxy-send-timeout: "600"
@@ -16,6 +16,5 @@ spec:
         backend:
           service:
             name: gateway
-            port: 
+            port:
               number: 8080
-

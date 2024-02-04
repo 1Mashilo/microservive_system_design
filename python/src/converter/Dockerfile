@@ -20,8 +20,5 @@ RUN pip install --no-cache-dir --requirement /app/requirements.txt
 # Copy the application code into the container
 COPY . /app
 
-# Expose port 5000 to the outside world
-EXPOSE 000
-
 # Command to run the application
 CMD ["python3", "consumer.py"]

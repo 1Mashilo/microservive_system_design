@@ -1,6 +1,4 @@
 import os
-from pymongo import MongoClient
-from gridfs import GridFS
 import pika
 import json
 from flask import Flask, request
@@ -8,6 +6,11 @@ from flask_pymongo import PyMongo
 from auth import validate
 from auth_svc import access 
 from storage import util
+from gridfs import GridFS
+from dotenv import load_dotenv
+
+# Load environment variables from .env file
+load_dotenv()
 
 # Initialize Flask app
 server = Flask(__name__)
@@ -21,8 +24,12 @@ mongo = PyMongo(server)
 # Initialize GridFS for file storage
 fs = GridFS(mongo.db)
 
+# Get AMQP URL from environment variable
+amqp_url = os.getenv("AMQP_URL")
+
 # Configure RabbitMQ connection
-connection = pika.BlockingConnection(pika.ConnectionParameters("rabbimq"))
+params = pika.URLParameters(amqp_url)
+connection = pika.BlockingConnection(params)
 channel = connection.channel()
 
 # Route for user login

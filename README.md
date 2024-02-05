@@ -1,4 +1,4 @@
-# Microservice Architecture & System Design with Python,MongoDB, Postgres, RabbitMQ Docker, & Kubernetes
+# Microservice Architecture & System Design with Python,MongoDB, Postgres, RabbitMQ, Docker, & Kubernetes
 
 # Install
 - docker [Reference to Installation Guide: `https://docs.docker.com/desktop/install/windows-install/`]
@@ -61,15 +61,15 @@ docker build .
 
 - Tag the Docker Image (Image ID is the text attached to sha256:{...})
 ```cmd
-docker tag <image_id> anuragb98/auth:latest
+docker tag <image_id> mashilo/auth:latest
 ```
 - Push the image to the remote repository
 ```cmd
-docker push anuragb98/auth:latest
+docker push mashilo/auth:latest
 ```
 - Pull the image
 ```cmd
-docker pull anuragb98/auth:latest
+docker pull mashilo/auth:latest
 ```
 `But, our Kubernetes configurations are going to be pulling these images.`
 
@@ -429,8 +429,8 @@ pip install pika pymongo moviepy jedi pylint
 - Create a `Dockerfile`
 - Run `docker build .` [Outside venv preferably, works inside venv also though]
 ```cmd
-docker tag <image-id> anuragb98/converter:latest
-docker push anuragb98/converter:latest
+docker tag <image-id> mashilo/converter:latest
+docker push mashilo/converter:latest
 ```
 - Create the `manifests` directory, and inside it create `converter-deploy.yaml`, `secret.yaml` and `configmap.yaml`.
 - Create the `mp3` Queue on RabbitMQ Console.
@@ -448,81 +448,7 @@ kubectl logs -f <pod-name>
 ![Alt text](images/image-23.png)
 
 ---
-8. Next is to check the end-to-end functionality
-- We want to test by uploading a video file.
-- And when we upload that video file, we want to see that the message gets added to the video queue and then gets removed from our video queue and another message gets added to the MP3 queue. We dont want the messages in the MP3 queue to be consumed, so all the messages should be piling up in the MP3 queue. Also, if it's working as expected we should be able to download a converted video file (MP3 file) from MongoDB.
-
-- We will use Postman.
-
-- Find a video to convert and place it in converter directory.
-
-- Check your mysql DB.
-
-```
-
-- Use `curl` commands or use Postman to see if you can access the website.
-
-```cmd
-PS C:\Users\anura> $CurlArgument = '-X','POST','http://mp3converter.com/login','-u','anurag@gmail.com:anurag123'
-PS C:\Users\anura> $CURLEXE = 'C:\Program Files\Git\mingw64\bin\curl.exe'
-PS C:\Users\anura> & $CURLEXE @CurlArgument
-```
-
-Now, go to the `src/converter` directory and run:
-
-```cmd
-PS C:\Users\anura> $CurlArgument = '-X','POST','-F','file=@./test_video_1.mp4','-H','eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VybmFtZSI6ImFudXJhZ0BnbWFpbC5jb20iLCJleHAiOjE2OTQ3Mzg2MTMsImlhdCI6MTY5NDY1MjIxMywiYWRtaW4iOnRydWV9.LXJxHvrDJc_aHmAJfGsOcMsr-Pj022KLuEMOzrsvaTM','http://mp3converter.com/upload'
-PS C:\Users\anura> $CURLEXE = 'C:\Program Files\Git\mingw64\bin\curl.exe'
-PS C:\Users\anura> & $CURLEXE @CurlArgument
-```
-
-**This don't work in Windows, so use Postman!**
-
-**nginx Entity too large error:**
-```
-<html>
-
-<head>
-	<title>413 Request Entity Too Large</title>
-</head>
-
-<body>
-	<center>
-		<h1>413 Request Entity Too Large</h1>
-	</center>
-	<hr>
-	<center>nginx</center>
-</body>
-```
-**Solution:----> nginx supports 1MB upload limit? - Yes**
-
-
-**New Error! -> on hitting `http://mp3converter.com/upload`**
-```
-Internal Server Error!: host.minikube.internal:27017: [Errno 111] Connection refused, Timeout: 30s, Topology
-Description: <TopologyDescription id: 650348f8ef3c066490928349, topology_type: Unknown, servers: [<ServerDescription
-	('host.minikube.internal', 27017) server_type: Unknown, rtt: None,
-	error=AutoReconnect('host.minikube.internal:27017: [Errno 111] Connection refused')>]>
-```
-
-**Solution:----> INSTALL FRIGGGINN MONGODB + mongosh + mongoDB command line DB tools!!! [Also add the bin locations to the env path.]**
-
-Note down the JWT returned.
-![Login](images/image-26.png)
-
-Put the file to be converted under Body/form-data in Postman.
-![Upload](images/image-24.png)
-
-Put the JWT under Authentication/Bearer Token in Postman.
-![Upload](images/image-25.png)
-
----
-9. Now we make the Update Gateway Service to have a `Download endpoint`
-- Code is similar to upload
-- It is an endpoint for downloading MP3 files. It validates user access based on their token and admin status, checks for the presence of a required "fid" parameter in the request, and handles file retrieval and response generation accordingly.
-
----
-10. Making the Notification Service
+8. Making the Notification Service
 - similar to our converter service, this is going to be a consumer service.
 - make a new directory called `notification` under src directory.
 - make another file `send/email.py` and setup GMail's SMTP server.
@@ -550,8 +476,8 @@ pip freeze > requirements.txt
 - Make a Docker image
 ```cmd
 docker build .
-docker tag <image-id> anuragb98/notification:latest
-docker push anuragb98/notification:latest
+docker tag <image-id> mashilo/notification:latest
+docker push mashilo/notification:latest
 ```
 
 - Configure GMail account to allow non-Google apps to login.
@@ -570,20 +496,6 @@ switch to using Xoauth2 most of the libraries support it. it will depend upon th
 - Go to venv of notifications and `pip install yagmail` then freeze requirements and rebuild docker image.
 
 - Make sure the email in the DB is a real one, so that you actually receive the notification.
-```sql
-UPDATE user SET email = 'anurag.bambardekar@gmail.com' WHERE id = 1;
-```
-
-- So now when you hit the POST request to upload a video for conversion to MP3, momentarily you'll get an email.
-![My Inbox](images/image-28.png)
-
-Add Query param to the URL:
-![Alt text](images/image-29.png)
-
-Add Bearer Token to the URL:
-![Alt text](images/image-30.png)
-
-
 
 ## Remember/Best Practices
 - Start Docker Desktop
@@ -592,7 +504,7 @@ Add Bearer Token to the URL:
 - To re-build a docker file
 Just: <br>
 ```docker build .``` <br>
-Then `docker tag <image-id> anuragb98/gateway:latest` it and then `docker push anuragb98/gateway:latest` <br>
+Then `docker tag <image-id> mashilo/gateway:latest` it and then `docker push mashilo/gateway:latest` <br>
 Then delete the resources created using the manifests using `kubectl delete -f ./manifests` and then again `kubectl apply -f ./manifests` <br>
 - CTRL+C on the terminal where minikube tunnel is running.
 - minikube stop
